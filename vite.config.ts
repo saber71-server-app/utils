@@ -5,10 +5,7 @@ import { externalDepsPlugin } from "@saber71/external-deps-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    externalDepsPlugin({ root: "../" }),
-    dtsPlugin({ rollupTypes: true }),
-  ],
+  plugins: [externalDepsPlugin(), dtsPlugin({ rollupTypes: true })],
   build: {
     lib: {
       entry: path.resolve(".", "src/index.ts"),

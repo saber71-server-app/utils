@@ -1,20 +1,21 @@
-import { DataSource, type MixedList, type EntitySchema } from 'typeorm';
+import { DataSource, type MixedList, type EntitySchema } from "typeorm";
 
 export interface DatabaseConfig {
   host: string;
   port: number;
   username: string;
   password: string;
-  type: 'postgres';
+  type: "postgres";
   database: string;
 }
 
 let _datasource: DataSource | null = null;
 
 export async function connectDatabase(
-  config: DatabaseConfig,
-  ...entities: MixedList<Function | string | EntitySchema>[]
+  config: DatabaseConfig | Promise<DatabaseConfig>,
+  entities: MixedList<Function | string | EntitySchema>[],
 ) {
+  if (config instanceof Promise) config = await config;
   if (!_datasource) {
     _datasource = new DataSource({
       ...config,
@@ -26,6 +27,6 @@ export async function connectDatabase(
 }
 
 export function datasource() {
-  if (!_datasource) throw new Error('数据库未初始化');
+  if (!_datasource) throw new Error("数据库未初始化");
   return _datasource;
 }

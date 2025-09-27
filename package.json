@@ -13,12 +13,13 @@
   "dependencies": {
     "@nestjs/common": "catalog:",
     "axios": "catalog:",
+    "humps": "catalog:",
     "ip": "catalog:",
     "ioredis": "catalog:",
     "typeorm": "catalog:",
     "js-yaml": "catalog:",
-    "nacos": "catalog:",
-    "socket.io-client": "catalog:"
+    "socket.io-client": "catalog:",
+    "ssh2": "catalog:"
   },
   "files": [
     "dist"

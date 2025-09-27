@@ -1,8 +1,12 @@
-import jsyaml from 'js-yaml';
-import * as fs from 'node:fs';
-import { getNacosConfig, type RegisterConfig } from './nacos.ts';
-import type { RedisConfig } from './redis.ts';
-import type { DatabaseConfig } from './typeorm.ts';
+import jsyaml from "js-yaml";
+import * as fs from "node:fs";
+import {
+  type GatewayConfig,
+  gatewayGetConfig,
+  gatewaySetConfig,
+} from "./gateway.ts";
+import type { RedisConfig } from "./redis.ts";
+import type { DatabaseConfig } from "./typeorm.ts";
 
 class Config<T = any> implements Record<any, any> {
   [key: string]: any;
@@ -11,33 +15,35 @@ class Config<T = any> implements Record<any, any> {
     return (this as any)[key];
   }
 
-  getString(key: string): Promise<string> {
-    return getNacosConfig(key);
+  getRemoteValue(key: string): Promise<string> {
+    return gatewayGetConfig(key);
   }
 
-  getNumber(key: string): Promise<number> {
-    return this.getString(key).then(Number);
+  setRemoteValue(key: string, value: string): Promise<boolean> {
+    return gatewaySetConfig(key, value);
   }
 
-  getBoolean(key: string): Promise<boolean> {
-    return this.getString(key).then(Boolean);
+  getRemoteValueAsNumber(key: string): Promise<number> {
+    return this.getRemoteValue(key).then(Number);
   }
 
-  async getJSON<T>(key: string): Promise<T> {
-    const text = await this.getString(key);
+  getRemoteValueAsBoolean(key: string): Promise<boolean> {
+    return this.getRemoteValue(key).then(Boolean);
+  }
+
+  async getRemoteValueAsJSON<T>(key: string): Promise<T> {
+    const text = await this.getRemoteValue(key);
     return JSON.parse(text);
   }
 
-  getNacosConfig(): RegisterConfig {
-    return Object.assign({ port: this.appPort }, this.nacos);
+  async getRedisConfig(db?: number): Promise<RedisConfig> {
+    const res = await this.getRemoteValueAsJSON<RedisConfig>("redis");
+    return { ...res, db };
   }
 
-  getRedisConfig(): Promise<RedisConfig> {
-    return this.getJSON<RedisConfig>('redis');
-  }
-
-  getDatabaseConfig(): Promise<DatabaseConfig> {
-    return this.getJSON<DatabaseConfig>('postgres');
+  async getDatabaseConfig(database: string): Promise<DatabaseConfig> {
+    const res = await this.getRemoteValueAsJSON<DatabaseConfig>("postgres");
+    return { ...res, database };
   }
 }
 
@@ -45,18 +51,18 @@ const cache: Record<string, Config> = {};
 
 function readYaml(obj: Config, path: string) {
   if (fs.existsSync(path)) {
-    Object.assign(obj, jsyaml.load(fs.readFileSync(path, 'utf-8')));
+    Object.assign(obj, jsyaml.load(fs.readFileSync(path, "utf-8")));
   }
 }
 
 function readEnv(obj: Config, path: string) {
   if (fs.existsSync(path)) {
     const contents = fs
-      .readFileSync(path, 'utf-8')
-      .split('\n')
+      .readFileSync(path, "utf-8")
+      .split("\n")
       .map((i) => i.trim())
-      .filter((i) => i && !i.startsWith('#'))
-      .map((i) => i.split('='));
+      .filter((i) => i && !i.startsWith("#"))
+      .map((i) => i.split("="));
     for (let [key, value] of contents) {
       obj[key] = value;
     }
@@ -64,7 +70,7 @@ function readEnv(obj: Config, path: string) {
 }
 
 export function config<T extends BaseConfig = BaseConfig>(
-  env: string = process.env.NODE_ENV || 'dev',
+  env: string = process.env.NODE_ENV || "dev",
 ): Config<T> {
   if (!cache[env]) {
     const obj = new Config();
@@ -77,10 +83,8 @@ export function config<T extends BaseConfig = BaseConfig>(
   return cache[env];
 }
 
-export default config;
-
 export interface BaseConfig {
   appPort: number;
-  nacos: RegisterConfig;
+  gateway: GatewayConfig;
   serverName: string;
 }

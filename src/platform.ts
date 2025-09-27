@@ -1,8 +1,8 @@
-import { spawn } from 'node:child_process';
-import * as fs from 'node:fs';
-import * as fsPromise from 'node:fs/promises';
-import { Client, type ConnectConfig, type SFTPWrapper } from 'ssh2';
-import config from './config.ts';
+import { spawn } from "node:child_process";
+import * as fs from "node:fs";
+import * as fsPromise from "node:fs/promises";
+import { Client, type ConnectConfig, type SFTPWrapper } from "ssh2";
+import { config } from "./config.ts";
 
 export interface FileInfo {
   name(): string;
@@ -75,11 +75,11 @@ export abstract class Platform {
 class NativePlatform extends Platform {
   async readdir(path: fs.PathLike): Promise<FileInfo[]> {
     const names = await fsPromise.readdir(path);
-    return names.map((name) => this.fileInfo(path.toString() + '/' + name));
+    return names.map((name) => this.fileInfo(path.toString() + "/" + name));
   }
 
   readFile(path: fs.PathLike): Promise<string> {
-    return fsPromise.readFile(path, 'utf-8');
+    return fsPromise.readFile(path, "utf-8");
   }
 
   readFileBuffer(path: fs.PathLike): Promise<Buffer> {
@@ -101,9 +101,9 @@ class NativePlatform extends Platform {
   ): Promise<number> {
     return new Promise<number>((resolve, reject) => {
       const stream = spawn(command, args);
-      stream.on('error', reject);
-      stream.on('close', resolve);
-      if (callback) stream.on('data', callback);
+      stream.on("error", reject);
+      stream.on("close", resolve);
+      if (callback) stream.on("data", callback);
     });
   }
 }
@@ -128,13 +128,13 @@ class SshPlatform extends Platform {
     return new Promise<number>((resolve, reject) => {
       if (args) {
         args = args.map((arg) => (/\s/.test(arg) ? `"${arg}"` : arg));
-        command += ' ' + args.join(' ');
+        command += " " + args.join(" ");
       }
       this._client.exec(command, (err, channel) => {
         if (err) reject(err);
         else {
-          channel.on('close', (code: number) => resolve(code));
-          if (callback) channel.on('data', callback);
+          channel.on("close", (code: number) => resolve(code));
+          if (callback) channel.on("data", callback);
         }
       });
     });
@@ -152,7 +152,7 @@ class SshPlatform extends Platform {
                 return i.filename;
               },
               path() {
-                return path.toString() + '/' + this.name();
+                return path.toString() + "/" + this.name();
               },
               stat() {
                 return Promise.resolve(i.attrs as any);
@@ -218,11 +218,11 @@ class SshPlatform extends Platform {
     return new Promise<void>((resolve, reject) => {
       this._client
         .connect(this._config)
-        .on('ready', () => {
+        .on("ready", () => {
           this._inited = true;
           resolve();
         })
-        .on('error', reject);
+        .on("error", reject);
     });
   }
 }

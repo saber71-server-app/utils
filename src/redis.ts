@@ -1,4 +1,4 @@
-import { Redis } from 'ioredis';
+import { Redis } from "ioredis";
 
 let _redis: Redis | null = null;
 
@@ -10,11 +10,14 @@ export interface RedisConfig {
 }
 
 export function redis(): Redis {
-  if (!_redis) throw new Error('Redis not initialized');
+  if (!_redis) throw new Error("Redis not initialized");
   return _redis;
 }
 
-export function connectRedis(option?: RedisConfig) {
+export async function connectRedis(
+  option?: RedisConfig | Promise<RedisConfig>,
+) {
+  if (option instanceof Promise) option = await option;
   const client = (_redis = new Redis({
     password: option?.password,
     host: option?.host,
@@ -24,7 +27,7 @@ export function connectRedis(option?: RedisConfig) {
   return new Promise<void>((resolve, reject) => {
     client.ping((err, result) => {
       if (err) reject(err);
-      else if (result !== 'PONG') reject(new Error('Redis Ping Error'));
+      else if (result !== "PONG") reject(new Error("Redis Ping Error"));
       else resolve();
     });
   });
