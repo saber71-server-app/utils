@@ -1,0 +1,26 @@
+{
+  "name": "@saber71-server-app/utils",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "url": "https://github.com/saber71-server-app/utils.git"
+  },
+  "scripts": {
+    "build": "tsc && vite build"
+  },
+  "dependencies": {
+    "@nestjs/common": "catalog:",
+    "axios": "catalog:",
+    "ip": "catalog:",
+    "ioredis": "catalog:",
+    "typeorm": "catalog:",
+    "js-yaml": "catalog:",
+    "nacos": "catalog:",
+    "socket.io-client": "catalog:"
+  },
+  "files": [
+    "dist"
+  ]
+}
