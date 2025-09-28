@@ -15,6 +15,10 @@ class Config<T = any> implements Record<any, any> {
     return (this as any)[key];
   }
 
+  setValue<K extends keyof T>(key: K, value: T[K]) {
+    (this as any)[key] = value;
+  }
+
   getRemoteValue(key: string): Promise<string> {
     return gatewayGetConfig(key);
   }
@@ -76,8 +80,8 @@ export function config<T extends BaseConfig = BaseConfig>(
     const obj = new Config();
     readYaml(obj, `./config.yml`);
     readYaml(obj, `./config.${env}.yml`);
-    readEnv(obj, `./env`);
-    readEnv(obj, `./env.${env}`);
+    readEnv(obj, `./.env`);
+    readEnv(obj, `./.env.${env}`);
     cache[env] = obj;
   }
   return cache[env];
