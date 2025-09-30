@@ -7,6 +7,7 @@ import { connectWebsocket, type WebsocketConnectConfig } from "./ws.ts";
 export * from "./config.ts";
 export * from "./env.ts";
 export * from "./gateway.ts";
+export * from "./hono.ts";
 export * from "./platform.ts";
 export * from "./redis.ts";
 export * from "./request.ts";

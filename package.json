@@ -12,8 +12,10 @@
   },
   "dependencies": {
     "@nestjs/common": "catalog:",
+    "@hono/node-server": "catalog:",
     "axios": "catalog:",
     "humps": "catalog:",
+    "hono": "catalog:",
     "ip": "catalog:",
     "ioredis": "catalog:",
     "typeorm": "catalog:",
