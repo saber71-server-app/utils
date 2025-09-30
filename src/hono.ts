@@ -1,4 +1,4 @@
-import { serve } from "@hono/node-server";
+import { serve, type ServerType } from "@hono/node-server";
 import { type Context, Hono } from "hono";
 import { proxy } from "hono/proxy";
 import { logger } from "hono/logger";
@@ -7,7 +7,7 @@ import ip from "ip";
 import { config } from "./config.ts";
 
 export interface HonoExt extends Hono {
-  start(): void;
+  start(): ServerType;
   proxy(prefix: string, dst: string | ((c: Context) => string)): void;
 }
 
@@ -18,7 +18,7 @@ export function hono() {
     app = new Hono() as HonoExt;
     app.use(prettyJSON(), logger());
     app.start = function () {
-      serve({
+      return serve({
         fetch: this.fetch,
         port: config().getValue("appPort"),
       });
