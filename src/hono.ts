@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { prettyJSON } from "hono/pretty-json";
 import ip from "ip";
 import { config } from "./config.ts";
+import { Logger } from "./logger.ts";
 
 export interface HonoExt extends Hono {
   start(): ServerType;
@@ -18,11 +19,17 @@ export function hono() {
     app = new Hono() as HonoExt;
     app.use(prettyJSON(), logger());
     app.start = function () {
-      return serve({
-        fetch: this.fetch,
-        port: config().getValue("appPort"),
-      });
+      return serve(
+        {
+          fetch: this.fetch,
+          port: config().getValue("appPort"),
+        },
+        (info) => {
+          Logger.info(`Listening on http://localhost:${info.port}`);
+        },
+      );
     };
+
     const address = ip.address("public");
     app.proxy = function (prefix, dst) {
       this.all(prefix, (c) => {

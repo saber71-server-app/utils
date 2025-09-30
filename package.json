@@ -11,7 +11,6 @@
     "build": "tsc && vite build"
   },
   "dependencies": {
-    "@nestjs/common": "catalog:",
     "@hono/node-server": "catalog:",
     "axios": "catalog:",
     "hono": "catalog:",
@@ -20,7 +19,8 @@
     "typeorm": "catalog:",
     "js-yaml": "catalog:",
     "socket.io-client": "catalog:",
-    "ssh2": "catalog:"
+    "ssh2": "catalog:",
+    "winston": "catalog:"
   },
   "files": [
     "dist"
